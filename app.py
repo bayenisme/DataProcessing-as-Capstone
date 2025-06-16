@@ -374,10 +374,6 @@ plt.tight_layout()
 plt.show()
 
 
-# In[72]:
-
-
-get_ipython().system('jupyter nbconvert --to script Capstone_Project_14855.ipynb')
 
 
 # ## **Kesimpulan**
