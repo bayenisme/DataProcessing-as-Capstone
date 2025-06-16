@@ -30,13 +30,13 @@ subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requiremen
 
 # In[53]:
 
-subprocess.check_call(['gdown', '--id', '1D1dZRAQFmt4eiyRTxGPgkTZ0LlJWQOVg'])
+url = 'https://raw.githubusercontent.com/username/repository/branch/file.csv'
 
 
 # In[54]:
 
 
-df = pd.read_csv('ObesityDataSet.csv')
+df = pd.read_csv(url)
 
 
 # In[55]:
