@@ -14,66 +14,60 @@ from sklearn.model_selection import GridSearchCV
 
 st.title("Aplikasi Prediksi Obesitas")
 
-st.title("Upload Dataset")
-
-# File uploader untuk memungkinkan pengguna mengunggah file
 uploaded_file = st.file_uploader("Pilih file CSV", type="csv")
 
 if uploaded_file is not None:
     df = pd.read_csv(uploaded_file)
-    st.write(df.head())
 
-if st.checkbox('Tampilkan Data', value=True):
-    st.write(df.head())
+    st.subheader("Informasi Dataset")
+    st.text(df.info())
 
-st.subheader("Informasi Dataset")
-st.text(df.info())
+    st.subheader("Statistik Deskriptif")
+    st.write(df.describe(include='all'))
 
-st.subheader("Statistik Deskriptif")
-st.write(df.describe(include='all'))
+    st.subheader("Distribusi Kelas Target")
+    fig, ax = plt.subplots(figsize=(10, 5))
+    sns.countplot(data=df, x='NObeyesdad', order=df['NObeyesdad'].value_counts().index)
+    plt.xticks(rotation=45)
+    plt.title('Distribusi Kelas Target (NObeyesdad)')
+    st.pyplot(fig)
 
-st.subheader("Distribusi Kelas Target")
-fig, ax = plt.subplots(figsize=(10, 5))
-sns.countplot(data=df, x='NObeyesdad', order=df['NObeyesdad'].value_counts().index)
-plt.xticks(rotation=45)
-plt.title('Distribusi Kelas Target (NObeyesdad)')
-st.pyplot(fig)
+    st.subheader("Preprocessing Data")
+    df = df.drop_duplicates()
 
-st.subheader("Preprocessing Data")
-df = df.drop_duplicates()
+    for col in ['Age', 'Height', 'Weight']:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+    df.dropna(subset=['Age', 'Height', 'Weight'], inplace=True)
 
-for col in ['Age', 'Height', 'Weight']:
-    df[col] = pd.to_numeric(df[col], errors='coerce')
-df.dropna(subset=['Age', 'Height', 'Weight'], inplace=True)
+    def remove_outliers_iqr(data, column):
+        Q1 = data[column].quantile(0.25)
+        Q3 = data[column].quantile(0.75)
+        IQR = Q3 - Q1
+        lower = Q1 - 1.5 * IQR
+        upper = Q3 + 1.5 * IQR
+        return data[(data[column] >= lower) & (data[column] <= upper)]
 
-def remove_outliers_iqr(data, column):
-    Q1 = data[column].quantile(0.25)
-    Q3 = data[column].quantile(0.75)
-    IQR = Q3 - Q1
-    lower = Q1 - 1.5 * IQR
-    upper = Q3 + 1.5 * IQR
-    return data[(data[column] >= lower) & (data[column] <= upper)]
+    for col in ['Age', 'Height', 'Weight']:
+        df = remove_outliers_iqr(df, col)
 
-for col in ['Age', 'Height', 'Weight']:
-    df = remove_outliers_iqr(df, col)
+    label_encoder = LabelEncoder()
+    df_encoded = df.copy()
+    for col in df_encoded.columns:
+        if df_encoded[col].dtype == 'object':
+            df_encoded[col] = label_encoder.fit_transform(df_encoded[col])
 
-label_encoder = LabelEncoder()
-df_encoded = df.copy()
-for col in df_encoded.columns:
-    if df_encoded[col].dtype == 'object':
-        df_encoded[col] = label_encoder.fit_transform(df_encoded[col])
+    X = df_encoded.drop('NObeyesdad', axis=1)
+    y = df_encoded['NObeyesdad']
 
-X = df_encoded.drop('NObeyesdad', axis=1)
-y = df_encoded['NObeyesdad']
+    smote = SMOTE(random_state=42)
+    X_resampled, y_resampled = smote.fit_resample(X, y)
 
-smote = SMOTE(random_state=42)
-X_resampled, y_resampled = smote.fit_resample(X, y)
+    scaler = MinMaxScaler()
+    X_scaled = scaler.fit_transform(X_resampled)
 
-scaler = MinMaxScaler()
-X_scaled = scaler.fit_transform(X_resampled)
+    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y_resampled, test_size=0.2, random_state=42)
 
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y_resampled, test_size=0.2, random_state=42)
-
-models = {
-    'Logistic Regression': LogisticRegression(max_iter=1000),
-    'Random Forest': Ra
+    models = {
+        'Logistic Regression': LogisticRegression(max_iter=1000),
+        'Random Forest': RandomForestClassifier(),
+        'KNN': KNeighborsCla
