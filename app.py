@@ -14,8 +14,14 @@ from sklearn.model_selection import GridSearchCV
 
 st.title("Aplikasi Prediksi Obesitas")
 
-url = 'https://raw.githubusercontent.com/bayenisme/DataProcessing-as-Capstone/main/ObesityDataSet.csv'
-df = pd.read_csv(url)
+st.title("Upload Dataset")
+
+# File uploader untuk memungkinkan pengguna mengunggah file
+uploaded_file = st.file_uploader("Pilih file CSV", type="csv")
+
+if uploaded_file is not None:
+    df = pd.read_csv(uploaded_file)
+    st.write(df.head())
 
 if st.checkbox('Tampilkan Data', value=True):
     st.write(df.head())
