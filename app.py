@@ -22,14 +22,13 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 
 # In[52]:
 
+import subprocess
+import sys
 
-pip install -r requirements.txt
+subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
 
 
 # In[53]:
-
-
-import subprocess
 
 subprocess.check_call(['gdown', '--id', '1D1dZRAQFmt4eiyRTxGPgkTZ0LlJWQOVg'])
 
