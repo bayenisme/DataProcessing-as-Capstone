@@ -23,13 +23,15 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 # In[52]:
 
 
-get_ipython().system('pip install -U gdown')
+pip install -r requirements.txt
 
 
 # In[53]:
 
 
-get_ipython().system('gdown --id 1D1dZRAQFmt4eiyRTxGPgkTZ0LlJWQOVg')
+import subprocess
+
+subprocess.check_call(['gdown', '--id', '1D1dZRAQFmt4eiyRTxGPgkTZ0LlJWQOVg'])
 
 
 # In[54]:
