@@ -30,7 +30,7 @@ subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requiremen
 
 # In[53]:
 
-url = 'https://raw.githubusercontent.com/username/repository/branch/file.csv'
+url = 'https://raw.githubusercontent.com/bayenisme/DataProcessing-as-Capstone/main/ObesityDataSet.csv'
 
 
 # In[54]:
