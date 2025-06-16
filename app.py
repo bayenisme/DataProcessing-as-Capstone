@@ -70,4 +70,49 @@ if uploaded_file is not None:
     models = {
         'Logistic Regression': LogisticRegression(max_iter=1000),
         'Random Forest': RandomForestClassifier(),
-        'KNN': KNeighborsCla
+        'KNN': KNeighborsClassifier()
+    }
+
+    st.subheader("Evaluasi Model Sebelum Tuning")
+
+    for name, model in models.items():
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        st.write(f"Model: {name}")
+        st.write(classification_report(y_test, y_pred))
+
+        cm = confusion_matrix(y_test, y_pred)
+        fig, ax = plt.subplots(figsize=(8, 6))
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=np.unique(y), yticklabels=np.unique(y))
+        plt.title(f'Confusion Matrix - {name}')
+        st.pyplot(fig)
+
+    param_grid_rf = {
+        'n_estimators': [50, 100, 150],
+        'max_depth': [None, 10, 20],
+        'min_samples_split': [2, 5],
+    }
+
+    grid_rf = GridSearchCV(RandomForestClassifier(random_state=42), param_grid_rf, cv=3, scoring='f1_weighted', n_jobs=-1)
+    grid_rf.fit(X_train, y_train)
+
+    best_rf = grid_rf.best_estimator_
+    y_pred_rf = best_rf.predict(X_test)
+
+    st.subheader("Best Parameters - Random Forest")
+    st.write(grid_rf.best_params_)
+    st.write("Classification Report (Tuned Random Forest):")
+    st.write(classification_report(y_test, y_pred_rf))
+
+    comparison_scores = {
+        'Model': ['Random Forest (Tuned)', 'Logistic Regression', 'KNN'],
+        'Accuracy': [accuracy_score(y_test, y_pred_rf), accuracy_score(y_test, models['Logistic Regression'].predict(X_test)), accuracy_score(y_test, models['KNN'].predict(X_test))],
+    }
+
+    comparison_df = pd.DataFrame(comparison_scores)
+
+    st.subheader("Perbandingan Akurasi Model")
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.barplot(data=comparison_df, x='Model', y='Accuracy')
+    plt.title('Perbandingan Akurasi Model')
+    st.pyplot(fig)
